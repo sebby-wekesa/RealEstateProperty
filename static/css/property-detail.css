@@ -1,0 +1,129 @@
+.detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+.panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 18px;
+    background: linear-gradient(180deg, #ffffff, #f8fbff);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.hero-image {
+    width: 100%;
+    max-height: 360px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-bottom: 14px;
+}
+
+.price {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2563eb;
+    margin: 10px 0;
+}
+
+.sold-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #e11d48;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.meta {
+    color: #475569;
+    margin-bottom: 14px;
+}
+
+.owner-note {
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 10px 12px;
+    border-radius: 8px;
+}
+
+.agent-card {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1px solid #bfdbfe;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.agent-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.agent-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: #1d4ed8;
+    color: white;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.agent-meta {
+    color: #334155;
+    margin: 0;
+}
+
+.agent-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.agent-stat {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.agent-stat strong {
+    display: block;
+    color: #1d4ed8;
+}
+
+.contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+    color: #1f2937;
+}
+
+.contact-list li {
+    margin-bottom: 6px;
+}
+
+.inquiry-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 14px;
+}
+
+.inquiry-list li {
+    border-top: 1px solid #dbe2ea;
+    padding: 10px 0;
+}
+
+@media (max-width: 860px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+}

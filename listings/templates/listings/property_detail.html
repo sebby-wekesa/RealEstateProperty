@@ -1,0 +1,104 @@
+{% extends "listings/base.html" %}
+{% load static %}
+
+{% block title %}{{ property.title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/property-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1>{{ property.title }}{% if property.sold %} <span class="badge sold-badge">Sold</span>{% endif %}</h1>
+    <p class="subtitle">{{ property.get_listing_type_display }} · {{ property.city }}, {{ property.state }}</p>
+
+    <div class="detail-grid">
+        <section class="panel">
+            {% if property.image %}
+                <img class="hero-image" src="{{ property.image.url }}" alt="{{ property.title }}">
+            {% endif %}
+
+            <p class="price">Ksh {{ property.price }}</p>
+            <p class="meta"><strong>Address:</strong> {{ property.address }}, {{ property.city }}, {{ property.state }} {{ property.zip_code }}</p>
+            <p>{{ property.description }}</p>
+
+            {% if property.brochure %}
+                <p>
+                    <a class="button" href="{{ property.brochure.url }}" target="_blank">Download Brochure</a>
+                </p>
+            {% endif %}
+        </section>
+
+        <aside class="panel">
+            <div class="agent-card">
+                <h2>Agent Profile</h2>
+                <div class="agent-header">
+                    <div class="agent-avatar">{{ property.owner.username|first|upper }}</div>
+                    <div>
+                        <p class="agent-meta"><strong>{{ property.owner.username }}</strong></p>
+                        <p class="agent-meta">Listing specialist</p>
+                    </div>
+                </div>
+
+                <div class="agent-stats">
+                    <div class="agent-stat">
+                        <strong>{{ seller_listing_count }}</strong>
+                        <span>active listing{{ seller_listing_count|pluralize }}</span>
+                    </div>
+                    <div class="agent-stat">
+                        <strong>24 hrs</strong>
+                        <span>Response time</span>
+                    </div>
+                </div>
+
+                <ul class="contact-list">
+                    <li><strong>Email:</strong> {{ property.owner.email|default:"Not provided" }}</li>
+                    <li><strong>Office:</strong> PropertyIQ Network</li>
+                </ul>
+            </div>
+
+            <h2>Contact Agent</h2>
+            <p>Listed by <strong>{{ property.owner.username }}</strong></p>
+
+            {% if user.is_authenticated and user != property.owner %}
+                <form method="post" action="{% url 'toggle_favorite' property.id %}" style="margin-bottom: 16px;">
+                    {% csrf_token %}
+                    <button type="submit">{% if is_favorited %}Remove Favorite{% else %}Save Favorite{% endif %}</button>
+                </form>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+                {% if user == property.owner %}
+                    <p class="owner-note">This is your listing. Buyers can contact you from this page.</p>
+                {% elif property.sold %}
+                    <p class="owner-note">This property is already sold. Inquiries are no longer accepted.</p>
+                {% else %}
+                    <form method="post" action="{% url 'property_inquiry' property.id %}">
+                        {% csrf_token %}
+                        {{ inquiry_form.as_p }}
+                        <button type="submit">Send Inquiry</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <p>Log in or create a buyer account to contact the agent about this property.</p>
+                <p>
+                    <a class="button" href="{% url 'login' %}?next={% url 'property_detail' property.id %}">Login to inquire</a>
+                </p>
+            {% endif %}
+
+            {% if can_view_inquiries %}
+                <h3>Recent Inquiries</h3>
+                <ul class="inquiry-list">
+                    {% for inquiry in recent_inquiries %}
+                        <li>
+                            <strong>{{ inquiry.name }}</strong><br>
+                            <span>{{ inquiry.email }}{% if inquiry.phone %} · {{ inquiry.phone }}{% endif %}</span>
+                            <p>{{ inquiry.message }}</p>
+                        </li>
+                    {% empty %}
+                        <li>No inquiries yet.</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </aside>
+    </div>
+{% endblock %}

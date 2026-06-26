@@ -1,0 +1,111 @@
+{% extends "listings/base.html" %}
+{% load static %}
+
+{% block title %}
+    Login or Sign Up
+{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+    <style>
+        .auth-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .role-option {
+            padding: 0.875rem;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+        
+        .role-option:hover {
+            border-color: #999;
+        }
+        
+        .role-option.selected {
+            border-color: #000;
+            background: #f5f5f5;
+        }
+        
+        .role-option input {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="auth-container">
+        <!-- Login Card -->
+        <div class="form-card">
+            <p class="form-eyebrow">Welcome back</p>
+            <h1>Login</h1>
+            <p class="subtitle">Sign in to your PropertyIQ account.</p>
+            <form method="post" action="?mode=login">
+                {% csrf_token %}
+                {{ login_form.as_p }}
+                <button type="submit" class="button">Login</button>
+            </form>
+        </div>
+
+        <!-- Signup Card -->
+        <div class="form-card">
+            <p class="form-eyebrow">Join PropertyIQ</p>
+            <h1>Sign Up</h1>
+            
+            <div class="role-selector">
+                <label class="role-option {% if role == 'buyer' %}selected{% endif %}">
+                    <input type="radio" name="role" value="buyer" {% if role == 'buyer' %}checked{% endif %} onchange="switchRole(this)">
+                    <strong>Buyer</strong>
+                </label>
+                <label class="role-option {% if role == 'seller' %}selected{% endif %}">
+                    <input type="radio" name="role" value="seller" {% if role == 'seller' %}checked{% endif %} onchange="switchRole(this)">
+                    <strong>Agent / Seller</strong>
+                </label>
+            </div>
+            
+            <p class="subtitle">Create your account to access PropertyIQ.</p>
+            <form method="post" action="?mode=signup&role={{ role }}" id="signup-form">
+                {% csrf_token %}
+                {{ signup_form.as_p }}
+                <button type="submit" class="button">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function switchRole(radioInput) {
+            const roleOptions = document.querySelectorAll('.role-option');
+            roleOptions.forEach(option => option.classList.remove('selected'));
+            
+            // Update the selected role option styling
+            radioInput.closest('.role-option').classList.add('selected');
+            
+            // Update form action URL
+            const form = document.getElementById('signup-form');
+            form.action = `?mode=signup&role=${radioInput.value}`;
+        }
+    </script>
+{% endblock %}
+

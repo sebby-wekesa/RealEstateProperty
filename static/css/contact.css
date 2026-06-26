@@ -1,0 +1,37 @@
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 20px;
+}
+
+.contact-panel {
+    background: linear-gradient(180deg, #ffffff, #f8fbff);
+    border: 1px solid #dbeafe;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+}
+
+.contact-list li {
+    margin-bottom: 10px;
+    color: #334155;
+}
+
+.mini-card {
+    background: #eff6ff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+}

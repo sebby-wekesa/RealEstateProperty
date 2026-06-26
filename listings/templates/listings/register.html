@@ -1,0 +1,26 @@
+{% extends "listings/base.html" %}
+{% load static %}
+
+{% block title %}{{ role_label }} Sign Up{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="form-shell">
+        <div class="form-card">
+            <p class="form-eyebrow">Join PropertyIQ</p>
+            <h1>{{ role_label }} Sign Up</h1>
+            <p class="subtitle">Create your account to access PropertyIQ.</p>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="form-actions">
+                    <button type="submit">Create Account</button>
+                    <a class="button secondary" href="{% url 'login' %}">Already have an account?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "listings/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/contact.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+    <p class="subtitle">{{ subtitle }}</p>
+
+    <div class="contact-grid">
+        <section class="contact-panel">
+            <h2>Send us a message</h2>
+            <p>If you need help with listings, buyer accounts, seller onboarding, or general support, our team is ready to help.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Send Message</button>
+            </form>
+
+            <ul class="contact-list">
+                <li><strong>Email:</strong> support@propertyiq.com</li>
+                <li><strong>Phone:</strong> (+254) 010-2026</li>
+                <li><strong>Office Hours:</strong> Monday – Friday, 9:00 AM – 6:00 PM</li>
+                <li><strong>Office:</strong> PropertyIQ Client Success Desk</li>
+            </ul>
+        </section>
+
+        <aside class="contact-panel">
+            <h2>Why contact us?</h2>
+            <div class="mini-card">
+                <strong>Buyers</strong>
+                <p>Ask about saved listings, inquiries, and property availability.</p>
+            </div>
+            <div class="mini-card">
+                <strong>Sellers & Agents</strong>
+                <p>Get support with listing setup, brochures, and dashboard management.</p>
+            </div>
+            <div class="mini-card">
+                <strong>Platform support</strong>
+                <p>Report technical issues or ask questions about using `PropertyIQ`.</p>
+            </div>
+        </aside>
+    </div>
+{% endblock %}

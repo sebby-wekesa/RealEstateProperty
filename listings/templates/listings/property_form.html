@@ -1,0 +1,27 @@
+{% extends "listings/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="form-shell">
+        <div class="form-card wide">
+            <p class="form-eyebrow">Seller Workspace</p>
+            <h1>{{ page_title }}</h1>
+            <p class="hint">Choose whether this property is <strong>for rent</strong> or <strong>for sale</strong>.</p>
+            <p class="file-help">Optional uploads: property image (`.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`) and brochure (`.pdf`).</p>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="form-actions">
+                    <button type="submit">{{ button_label }}</button>
+                    <a class="button secondary" href="{% url 'dashboard' %}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

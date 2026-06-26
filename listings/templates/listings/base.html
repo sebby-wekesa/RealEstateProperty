@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PropertyIQ{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block extra_head %}{% endblock %}
+    <style>
+        {% block extra_styles %}{% endblock %}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="brand" href="{% url 'home' %}">PropertyIQ</a>
+
+            <div class="nav-group">
+                <a class="nav-link {% if request.resolver_match.url_name == 'home' and selected_type|default:'all' == 'all' %}active{% endif %}" href="{% url 'home' %}{% if search_query or city_query or state_query or min_price or max_price or selected_sort and selected_sort != 'newest' %}?{% endif %}{% if search_query %}search={{ search_query|urlencode }}&{% endif %}{% if city_query %}city={{ city_query|urlencode }}&{% endif %}{% if state_query %}state={{ state_query|urlencode }}&{% endif %}{% if min_price %}min_price={{ min_price|urlencode }}&{% endif %}{% if max_price %}max_price={{ max_price|urlencode }}&{% endif %}{% if selected_sort and selected_sort != 'newest' %}sort={{ selected_sort|urlencode }}{% endif %}">All Listings</a>
+                <a class="nav-link {% if selected_type|default:'' == 'rent' %}active{% endif %}" href="{% url 'home' %}?type=rent{% if search_query %}&search={{ search_query|urlencode }}{% endif %}{% if city_query %}&city={{ city_query|urlencode }}{% endif %}{% if state_query %}&state={{ state_query|urlencode }}{% endif %}{% if min_price %}&min_price={{ min_price|urlencode }}{% endif %}{% if max_price %}&max_price={{ max_price|urlencode }}{% endif %}{% if selected_sort and selected_sort != 'newest' %}&sort={{ selected_sort|urlencode }}{% endif %}">Rentals</a>
+                <a class="nav-link {% if selected_type|default:'' == 'sale' %}active{% endif %}" href="{% url 'home' %}?type=sale{% if search_query %}&search={{ search_query|urlencode }}{% endif %}{% if city_query %}&city={{ city_query|urlencode }}{% endif %}{% if state_query %}&state={{ state_query|urlencode }}{% endif %}{% if min_price %}&min_price={{ min_price|urlencode }}{% endif %}{% if max_price %}&max_price={{ max_price|urlencode }}{% endif %}{% if selected_sort and selected_sort != 'newest' %}&sort={{ selected_sort|urlencode }}{% endif %}">For Sale</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'contact' %}">Contact Us</a>
+            </div>
+
+            <form class="nav-search" method="get" action="{% url 'home' %}">
+                {% if selected_type and selected_type != 'all' %}
+                    <input type="hidden" name="type" value="{{ selected_type }}">
+                {% endif %}
+                {% if city_query %}
+                    <input type="hidden" name="city" value="{{ city_query }}">
+                {% endif %}
+                {% if state_query %}
+                    <input type="hidden" name="state" value="{{ state_query }}">
+                {% endif %}
+                {% if min_price %}
+                    <input type="hidden" name="min_price" value="{{ min_price }}">
+                {% endif %}
+                {% if max_price %}
+                    <input type="hidden" name="max_price" value="{{ max_price }}">
+                {% endif %}
+                {% if selected_sort and selected_sort != 'newest' %}
+                    <input type="hidden" name="sort" value="{{ selected_sort }}">
+                {% endif %}
+                <input type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Search title, city, or use max:2000 / 100000-300000">
+                <button type="submit">Search</button>
+            </form>
+
+            <div class="nav-group nav-auth">
+                {% if user.is_authenticated %}
+                    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'property_create' or request.resolver_match.url_name == 'property_update' or request.resolver_match.url_name == 'property_delete' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a class="nav-link button{% if request.resolver_match.url_name == 'auth' or request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'register_buyer' or request.resolver_match.url_name == 'register_seller' %} active{% endif %}" href="{% url 'auth' %}">Login or Signup</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-shell">
+        <div class="content-card">
+            {% if messages %}
+                <ul class="flash-list">
+                    {% for message in messages %}
+                        <li class="flash flash-{{ message.tags|default:'info' }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>
+                <strong>PropertyIQ</strong>
+                <p>Helping buyers, renters, and sellers connect with confidence.</p>
+                <p class="footer-copy">© 2026 PropertyIQ. All rights reserved.</p>
+            </div>
+            <div>
+                <div class="footer-links">
+                    <a href="{% url 'home' %}">Browse Listings</a>
+                    <a href="{% url 'contact' %}">Contact Us</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}">Dashboard</a>
+                    {% else %}
+                        <a href="{% url 'auth' %}">Login or Signup</a>
+                    {% endif %}
+                </div>
+                <div class="footer-socials" aria-label="Social and contact links">
+                    <a href="mailto:support@propertyiq.com" title="Email" aria-label="Email"><i class="fa-solid fa-envelope"></i></a>
+                    <a href="tel:+15550102026" title="Phone" aria-label="Phone"><i class="fa-solid fa-phone"></i></a>
+                    <a href="#" title="Instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" title="Facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="{% static 'js/main.js' %}" defer></script>
+</body>
+</html>

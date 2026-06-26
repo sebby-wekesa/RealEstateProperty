@@ -1,0 +1,139 @@
+{% extends "listings/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="dashboard-shell">
+        <section class="dashboard-hero">
+            <div class="hero-panel">
+                <span class="eyebrow">Account Center</span>
+                <h1>Welcome, {{ request.user.username }}</h1>
+                <p class="subtitle hero-copy">
+                    {% if is_seller %}
+                        Manage your listings, track buyer interest, and keep your portfolio up to date.
+                    {% else %}
+                        Review your saved homes and continue exploring the latest listings on PropertyIQ.
+                    {% endif %}
+                </p>
+                <p class="badge">{{ role_label }}</p>
+
+                <div class="hero-actions">
+                    {% if is_seller %}
+                        <a class="button" href="{% url 'property_create' %}">Add Property</a>
+                        <a class="button secondary" href="{% url 'home' %}">View Marketplace</a>
+                    {% else %}
+                        <a class="button" href="{% url 'home' %}">Browse Listings</a>
+                        <a class="button secondary" href="{% url 'contact' %}">Contact Support</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <aside class="summary-grid">
+                <div class="summary-card">
+                    <strong>{% if is_seller %}{{ owned_properties|length }}{% else %}{{ saved_properties|length }}{% endif %}</strong>
+                    <span>{% if is_seller %}Active listings{% else %}Saved favorites{% endif %}</span>
+                </div>
+                <div class="summary-card">
+                    <strong>{{ role_label }}</strong>
+                    <span>Account type</span>
+                </div>
+                <div class="summary-card">
+                    <strong>{% if is_seller %}Live{% else %}Ready{% endif %}</strong>
+                    <span>{% if is_seller %}Seller dashboard{% else %}Buyer shortlist{% endif %}</span>
+                </div>
+            </aside>
+        </section>
+
+        <section class="listings-section">
+            {% if is_seller %}
+                <div class="section-header">
+                    <div>
+                        <h2>Your Properties</h2>
+                        <p class="muted">Add, update, and monitor all of your active listings in one place.</p>
+                    </div>
+                </div>
+
+                <div class="listing-grid">
+                    {% for property in owned_properties %}
+                        <article class="property-card">
+                            <div class="card-top">
+                                <div>
+                                    <span class="listing-chip">{{ property.get_listing_type_display }}</span>
+                                    {% if property.sold %}
+                                        <span class="badge sold-badge">Sold</span>
+                                    {% endif %}
+                                    <h3>{{ property.title }}</h3>
+                                    <p class="price">Ksh {{ property.price }}</p>
+                                </div>
+                                <span class="stat-pill">{{ property.inquiries.count }} inquiries</span>
+                            </div>
+                            <p><strong>Location:</strong> {{ property.city }}, {{ property.state }}</p>
+                            <p class="muted">{{ property.address }} · {{ property.zip_code }}</p>
+                            {% if property.image %}
+                                <img class="preview" src="{{ property.image.url }}" alt="{{ property.title }}">
+                            {% endif %}
+                            <p>{{ property.description }}</p>
+                            {% if property.brochure %}
+                                <p><a class="button secondary" href="{{ property.brochure.url }}" target="_blank">View PDF Brochure</a></p>
+                            {% endif %}
+                            <div class="property-actions">
+                                <a class="button" href="{% url 'property_detail' property.id %}">View Listing</a>
+                                <a class="button secondary" href="{% url 'property_update' property.id %}">Edit</a>
+                                <form method="post" action="{% url 'property_toggle_sold' property.id %}" style="display:inline-block; margin:0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button {% if property.sold %}secondary{% else %}danger{% endif %}">
+                                        {% if property.sold %}Mark Unavailable{% else %}Mark Sold{% endif %}
+                                    </button>
+                                </form>
+                                <a class="button danger" href="{% url 'property_delete' property.id %}">Delete</a>
+                            </div>
+                        </article>
+                    {% empty %}
+                        <div class="empty-state">
+                            <h3>No properties yet</h3>
+                            <p>Use the Add Property button to create your first listing.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="section-header">
+                    <div>
+                        <h2>Saved Favorites</h2>
+                        <p class="muted">Your shortlist of homes and rentals you want to revisit.</p>
+                    </div>
+                </div>
+
+                <div class="listing-grid">
+                    {% for saved in saved_properties %}
+                        <article class="property-card">
+                            <div class="card-top">
+                                <div>
+                                    <span class="listing-chip">{{ saved.property.get_listing_type_display }}</span>
+                                    <h3>{{ saved.property.title }}</h3>
+                                    <p class="price">Ksh {{ saved.property.price }}</p>
+                                </div>
+                                <span class="stat-pill">Saved</span>
+                            </div>
+                            <p><strong>Location:</strong> {{ saved.property.city }}, {{ saved.property.state }}</p>
+                            <p class="muted">Saved on {{ saved.created_at|date:"M d, Y" }}</p>
+                            <div class="property-actions">
+                                <a class="button" href="{% url 'property_detail' saved.property.id %}">View Listing</a>
+                                <a class="button secondary" href="{% url 'contact' %}">Ask a Question</a>
+                            </div>
+                        </article>
+                    {% empty %}
+                        <div class="empty-state">
+                            <h3>No saved favorites yet</h3>
+                            <p>Browse listings and save the ones you want to revisit.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

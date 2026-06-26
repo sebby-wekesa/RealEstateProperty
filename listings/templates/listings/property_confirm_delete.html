@@ -1,0 +1,17 @@
+{% extends "listings/base.html" %}
+
+{% block title %}Delete Property{% endblock %}
+
+{% block extra_styles %}
+    .danger { background: #dc2626; }
+{% endblock %}
+
+{% block content %}
+    <h1>Delete Property</h1>
+    <p class="subtitle">Are you sure you want to delete <strong>{{ property.title }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button class="danger" type="submit">Yes, Delete</button>
+        <a class="button" href="{% url 'dashboard' %}">Cancel</a>
+    </form>
+{% endblock %}

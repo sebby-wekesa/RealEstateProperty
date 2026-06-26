@@ -1,0 +1,151 @@
+{% extends "listings/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section class="hero">
+        <div class="hero-panel">
+            <span class="eyebrow">Real estate made simple</span>
+            <h1>{{ title }}</h1>
+            <p class="hero-copy">Find your next home, rental, or investment property with a cleaner search experience and direct agent contact.</p>
+            <p class="subtitle" style="color: #dbeafe; margin-bottom: 0;">{{ subtitle }}</p>
+
+            <div class="hero-actions">
+                {% if user.is_authenticated %}
+                    <a class="button" href="{% url 'dashboard' %}">Open Dashboard</a>
+                {% else %}
+                    <a class="button" href="{% url 'register_buyer' %}">Get Started</a>
+                    <a class="button secondary" href="{% url 'register_seller' %}">List a Property</a>
+                {% endif %}
+            </div>
+
+            <div class="pill-row">
+                <span class="pill">🏠 Buy or rent</span>
+                <span class="pill">🔎 Smart search</span>
+                <span class="pill">📄 PDF brochures</span>
+            </div>
+        </div>
+
+        <aside class="hero-side">
+            <h2>Marketplace snapshot</h2>
+            <p class="section-note">Browse current listings and connect directly with agents or sellers.</p>
+            <div class="stats">
+                <div class="stat">
+                    <strong>{{ total_results }}</strong>
+                    <span>active listings</span>
+                </div>
+                <div class="stat">
+                    <strong>{% if selected_type == 'rent' %}Rentals{% elif selected_type == 'sale' %}For Sale{% else %}All Types{% endif %}</strong>
+                    <span>current view</span>
+                </div>
+                <div class="stat">
+                    <strong>24/7</strong>
+                    <span>property browsing</span>
+                </div>
+                <div class="stat">
+                    <strong>Fast</strong>
+                    <span>buyer inquiries</span>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <section>
+        <div class="listing-head">
+            <div>
+                <h2>Featured listings</h2>
+                <p class="section-note">Fresh properties from agents and sellers on `PropertyIQ`.</p>
+            </div>
+            <p class="section-note">
+                {% if page_obj %}
+                    Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ total_results }} result{{ total_results|pluralize }}
+                {% else %}
+                    Showing {{ total_results }} result{{ total_results|pluralize }}
+                {% endif %}
+            </p>
+        </div>
+
+        <form class="filter-panel" method="get" action="{% url 'home' %}">
+            {% if selected_type != 'all' %}
+                <input type="hidden" name="type" value="{{ selected_type }}">
+            {% endif %}
+            <div>
+                <label for="search">Keyword</label>
+                <input id="search" type="text" name="search" value="{{ search_query }}" placeholder="Title, city, address">
+            </div>
+            <div>
+                <label for="city">City</label>
+                <input id="city" type="text" name="city" value="{{ city_query }}" placeholder="Seattle">
+            </div>
+            <div>
+                <label for="state">State</label>
+                <input id="state" type="text" name="state" value="{{ state_query }}" placeholder="WA">
+            </div>
+            <div>
+                <label for="sort">Sort by</label>
+                <select id="sort" name="sort">
+                    <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest</option>
+                    <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>Oldest</option>
+                    <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="title_asc" {% if selected_sort == 'title_asc' %}selected{% endif %}>Title A-Z</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="button">Apply Filters</button>
+                <a class="button secondary" href="{% url 'home' %}{% if selected_type != 'all' %}?type={{ selected_type }}{% endif %}">Reset</a>
+            </div>
+        </form>
+
+        <div class="cards">
+            {% for listing in featured_listings %}
+                <article class="property-card added-animation">
+                    {% if listing.image_url %}
+                        <img class="preview" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+                    {% else %}
+                        <div class="preview-fallback">{{ listing.listing_type }}</div>
+                    {% endif %}
+
+                    <span class="listing-badge">{{ listing.listing_type }}</span>                    {% if listing.sold %}
+                        <span class="badge sold-badge">Sold</span>
+                    {% endif %}                    <h3>{{ listing.title }}</h3>
+                    <p class="price">{{ listing.price }}</p>
+                    <p><strong>{{ listing.location }}</strong></p>
+                    <p class="address-line">{{ listing.address }}</p>
+                    <p class="listing-copy">{{ listing.description|truncatechars:120 }}</p>
+
+                    <div class="card-actions">
+                        <a class="button" href="{% url 'property_detail' listing.id %}">View details</a>
+                        {% if listing.brochure_url %}
+                            <a class="button secondary" href="{{ listing.brochure_url }}" target="_blank">Brochure</a>
+                        {% endif %}
+                    </div>
+                </article>
+            {% empty %}
+                <div class="property-card">
+                    <h3>No matching listings</h3>
+                    <p>Try another filter or ask an agent to add a property.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if page_obj and page_obj.paginator.num_pages > 1 %}
+            <nav class="pagination" aria-label="Pagination">
+                {% if page_obj.has_previous %}
+                    <a class="button secondary" href="{% url 'home' %}?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span class="page-chip">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                    <a class="button" href="{% url 'home' %}?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    </section>
+{% endblock %}
