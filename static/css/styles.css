@@ -4,6 +4,11 @@ html {
     scroll-behavior: smooth;
 }
 
+:root {
+    --spotlight-x: 50vw;
+    --spotlight-y: 50vh;
+}
+
 body {
     font-family: "Segoe UI", Arial, sans-serif;
     background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
@@ -13,6 +18,26 @@ body {
     color: #1f2937;
     line-height: 1.6;
     min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(520px circle at var(--spotlight-x) var(--spotlight-y), rgba(255, 0, 255, 0.16), transparent 42%),
+        radial-gradient(320px circle at var(--spotlight-x) var(--spotlight-y), rgba(0, 212, 255, 0.12), transparent 54%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+body.js-spotlight::before {
+    opacity: 1;
 }
 
 .navbar {
@@ -23,6 +48,32 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
+}
+
+.page-shell,
+.site-footer {
+    position: relative;
+    z-index: 1;
+}
+
+.cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    background: radial-gradient(circle at center, rgba(255, 0, 255, 0.2) 0%, rgba(0, 212, 255, 0.12) 32%, transparent 70%);
+    filter: blur(1px);
+    opacity: 0;
+    transform: translate3d(-999px, -999px, 0) translate(-50%, -50%);
+    transition: opacity 0.25s ease, transform 0.1s ease-out;
+}
+
+.cursor-glow.is-visible {
+    opacity: 1;
 }
 
 .nav-inner {
@@ -166,17 +217,45 @@ body {
 
 .property-card,
 .card {
+    --card-x: 50%;
+    --card-y: 50%;
+    --tilt-x: 0deg;
+    --tilt-y: 0deg;
+    --tilt-lift: 0px;
+    position: relative;
+    overflow: hidden;
     border: 1px solid rgba(0, 212, 255, 0.2);
     border-radius: 16px;
     padding: 16px;
     background: rgba(255, 255, 255, 0.92);
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(var(--tilt-lift));
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.property-card::before,
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(260px circle at var(--card-x) var(--card-y), rgba(0, 212, 255, 0.18), transparent 58%),
+        radial-gradient(180px circle at var(--card-x) var(--card-y), rgba(255, 0, 255, 0.13), transparent 64%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.property-card.is-pointer-active::before,
+.card.is-pointer-active::before {
+    opacity: 1;
 }
 
 .property-card:hover,
 .card:hover {
-    transform: translateY(-3px);
+    --tilt-lift: -3px;
     box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
     border-color: #c7d2fe;
 }
@@ -407,6 +486,19 @@ select:focus {
     .footer-links,
     .footer-socials {
         justify-content: flex-start;
+    }
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce), (max-width: 1024px) {
+    body::before,
+    .cursor-glow {
+        display: none;
+    }
+
+    .property-card,
+    .card {
+        transform: none;
+        will-change: auto;
     }
 }
 
